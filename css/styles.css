@@ -1,0 +1,1316 @@
+/* 기본 리셋 및 전체 설정 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background: #000;
+    color: white;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+/* 메인 컨테이너 */
+#gameContainer {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 500px;
+    height: 100vh;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #1a1a1a;
+}
+
+/* 캐릭터 컨테이너 */
+.character {
+    flex: 0 0 auto;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    text-align: left;
+    width: 100%;
+}
+
+/* 스탯 컨테이너 */
+.stats-container {
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.stats-main {
+    margin-bottom: 10px;
+}
+
+.character-name {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #f1c40f;
+    margin-bottom: 5px;
+    text-align: left;
+    width: 100%;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}
+
+.status-text {
+    color: #e74c3c;
+    font-size: 0.8em;
+    margin-left: 8px;
+}
+
+.stats-detail {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    font-size: 0.9em;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 5px 10px;
+    border-radius: 4px;
+    min-width: 100px;
+}
+
+.stat-icon {
+    font-size: 1.2em;
+}
+
+/* HP 바 컨테이너 */
+.hp-bar {
+    position: relative;
+    width: 100%;
+    height: 20px;
+    background: rgba(255, 0, 0, 0.2);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 5px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* HP 바 채우기 */
+.hp-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: #e74c3c;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    background-image: linear-gradient(
+        45deg,
+        rgba(255,255,255,0.2) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255,255,255,0.2) 50%,
+        rgba(255,255,255,0.2) 75%,
+        transparent 75%,
+        transparent
+    );
+    background-size: 30px 30px;
+    animation: health-bar-stripes 1s linear infinite;
+}
+
+/* 체력바 상태별 색상 */
+.hp-fill.critical {
+    background: #c0392b;
+}
+
+.hp-fill.warning {
+    background: #e67e22;
+}
+
+/* 보호막 텍스트 */
+.shield-text {
+    position: absolute;
+    right: 5px;
+    top: -18px;
+    font-size: 0.8em;
+    color: #3498db;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* 보호막 바 (플레이어 전용) */
+.shield-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 4px;
+    background: #3498db;
+    border-radius: 10px 10px 0 0;
+    transition: width 0.3s ease;
+    z-index: 2;
+}
+
+/* 로그 컨테이너 */
+.log-container {
+    display: flex;
+    flex-direction: column-reverse;
+    overflow-y: auto;
+    flex: 1;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    margin: 8px 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px;
+}
+
+.log-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+}
+
+/* 로그 메시지 스타일 */
+.log-entry {
+    margin: 4px 0;
+    padding: 8px 12px;
+    display: block;
+    border-radius: 4px;
+    line-height: 1.4;
+    clear: both;
+}
+
+/* 왼쪽 정렬 (적 행동) */
+.log-entry.enemy {
+    float: left;
+    text-align: left;
+}
+
+/* 오른쪽 정렬 (플레이어 행동) */
+.log-entry.player {
+    float: right;
+    text-align: right;
+}
+
+/* 중앙 정렬 (시스템 메시지 등) */
+.log-entry.narrative,
+.log-entry.system,
+.log-entry.status {
+    margin: 0 auto;
+    text-align: center;
+    float: none;
+}
+
+/* 상태창 UI 전용 스타일 */
+.status-ui {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+}
+
+/* 로그의 상태 메시지 스타일 */
+.status {
+    margin-right: auto;
+    margin-left: 0;
+    text-align: left;
+    background: none;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    max-width: 100%;
+    border: none;
+    border-left: none;
+}
+
+/* 등급별 스타일 */
+.legendary {
+    color: #ffd700;
+    font-family: 'Courier New', monospace;
+    text-shadow: 0 0 5px #ffd700;
+}
+
+.rare {
+    color: #c0c0c0;
+    font-family: 'Courier New', monospace;
+    text-shadow: 0 0 5px #c0c0c0;
+}
+
+.normal {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+}
+
+/* 내러티브, 효과 메시지 - 배경 없음 */
+.narrative, .narrative-emphasis,
+.effect, .effect-emphasis {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    background: none;
+    display: block;
+    clear: both;
+}
+
+/* 강조 스타일은 배경색 대신 글자 크기와 굵기로만 강조 */
+.enemy-emphasis {
+    background: rgba(255, 74, 74, 0.15);
+    font-weight: bold;
+}
+
+.player-emphasis {
+    background: rgba(74, 158, 255, 0.15);
+    font-weight: bold;
+}
+
+.narrative-emphasis,
+.system-emphasis,
+.effect-emphasis {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.log-entry.attack { 
+    color: #ff4444; 
+    border-left: none;
+}
+.log-entry.defend { 
+    color: #4444ff; 
+    border-left: none;
+}
+.log-entry.multiHit { 
+    color: #ffd700;
+    font-weight: bold;
+}
+.log-entry.critical { 
+    color: #ff44ff; 
+    border-left: none;
+}
+.log-entry.enemy { 
+    color: #ff8844; 
+    border-left: none;
+}
+.log-entry.system {
+    color: #33ff33;
+    font-family: monospace;
+    border-left: none;
+}
+
+/* 강조 메시지 */
+.log-entry.emphasis {
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 6px 8px;
+    margin: 6px 0;
+    background: rgba(255, 255, 255, 0.1);
+    text-shadow: 0 0 5px currentColor;
+}
+
+/* 새 메시지 애니메이션 */
+.log-entry.new-message {
+    animation: newMessage 0.5s ease-out;
+    opacity: 1;
+}
+
+/* 레튼 스타일 */
+#actionButton {
+    height: auto;
+    min-height: 50px;
+    border: none;
+    border-radius: 8px;
+    background: #2ecc71;
+    color: white;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 8px;
+    padding: 10px 15px;
+    line-height: 1.4;
+}
+
+#actionButton:hover {
+    background: #27ae60;
+}
+
+#actionButton:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
+}
+
+/* 보상 시스템 */
+.reward-container {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #2c3e50;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%;
+    z-index: 100;
+}
+
+.reward-title {
+    text-align: center;
+    font-size: 24px;
+    color: #f1c40f;
+    margin-bottom: 20px;
+}
+
+.reward-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.reward-button {
+    padding: 15px;
+    background-color: #34495e;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color 0.3s;
+}
+
+.reward-button:hover {
+    background-color: #2980b9;
+}
+
+.reward-description {
+    font-size: 14px;
+    color: #bdc3c7;
+    margin-top: 5px;
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 99;
+}
+
+/* 스테이지 정보 */
+.stage-info-container {
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.stage-title {
+    font-size: 24px;
+    color: #ffd700;
+    margin-bottom: 10px;
+}
+
+.stage-progress {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background: #333;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(to right, #4a90e2, #357abd);
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    color: #fff;
+    font-size: 14px;
+}
+
+/* 경험치 바 */
+.level-exp-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 5px;
+}
+
+#levelText {
+    color: #ffd700;
+    font-weight: bold;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+}
+
+.exp-bar-container {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 2px;
+}
+
+.exp-bar {
+    height: 100%;
+    width: 0%;
+    background: #ffd700;
+    transition: width 0.5s ease-out;
+    position: relative;
+}
+
+/* 경험치 획득 효과 */
+.exp-bar.exp-gaining {
+    animation: expGlow 1s ease-out;
+}
+
+/* 레벨업 효과 */
+.exp-bar.level-up {
+    animation: levelUpGlow 2s ease-out;
+}
+
+@keyframes expGlow {
+    0% {
+        filter: brightness(1);
+    }
+    50% {
+        filter: brightness(1.5);
+    }
+    100% {
+        filter: brightness(1);
+    }
+}
+
+@keyframes levelUpGlow {
+    0% {
+        filter: brightness(1);
+        box-shadow: 0 0 5px #ffd700;
+    }
+    50% {
+        filter: brightness(2);
+        box-shadow: 0 0 20px #ffd700;
+    }
+    100% {
+        filter: brightness(1);
+        box-shadow: 0 0 5px #ffd700;
+    }
+}
+
+/* 전투 이펙트 */
+.battle-effect {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 1000;
+    animation: fadeOut 0.5s ease-out;
+}
+
+.critical-effect {
+    background: radial-gradient(circle, rgba(255,0,0,0.2) 0%, rgba(255,0,0,0) 70%);
+}
+
+.stun-effect {
+    background: radial-gradient(circle, rgba(255,255,0,0.2) 0%, rgba(255,255,0,0) 70%);
+}
+
+.skill-effect {
+    background: radial-gradient(circle, rgba(0,255,255,0.2) 0%, rgba(0,255,255,0) 70%);
+}
+
+.heal-effect {
+    background: radial-gradient(circle, rgba(0,255,0,0.2) 0%, rgba(0,255,0,0) 70%);
+}
+
+.lucky-effect {
+    background: radial-gradient(circle, rgba(255,215,0,0.2) 0%, rgba(255,215,0,0) 70%);
+    animation: pulseGold 1s ease-out;
+}
+
+/* 레벨업 효과 */
+.level-up-effect {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 48px;
+    color: #ffd700;
+    text-shadow: 0 0 10px #ff8800;
+    animation: levelUpAnimation 2s ease-out forwards;
+    z-index: 1000;
+}
+
+/* 애니메이션 */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes pulseGold {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes legendaryPulse {
+    0% { text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+    50% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+    100% { text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+}
+
+@keyframes levelUpAnimation {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes health-bar-stripes {
+    from { background-position: 0 0; }
+    to { background-position: 30px 0; }
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+    #gameContainer {
+        padding: 8px;
+    }
+
+    .character {
+        padding: 8px;
+    }
+
+    .stats-container {
+        font-size: 0.9em;
+    }
+
+    #actionButton {
+        height: 45px;
+        font-size: 1em;
+    }
+}
+
+/* 작은 화면 최적화 */
+@media (max-height: 700px) {
+    .character {
+        padding: 6px;
+    }
+
+    .stats-container {
+        font-size: 0.85em;
+    }
+
+    #actionButton {
+        height: 40px;
+    }
+
+    .log-entry {
+        font-size: 0.9em;
+        margin: 3px 0;
+    }
+} 
+
+@keyframes pulseButton {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+#actionButton.restart {
+    background: #e74c3c;
+    animation: pulseButton 2s infinite;
+}
+
+#actionButton.restart:hover {
+    background: #c0392b;
+}
+
+/* 스탯 증가 이펙트 */
+.stat-increase-effect {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 48px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.stat-increase-effect.attack { color: #ff4444; }
+.stat-increase-effect.defense { color: #4444ff; }
+.stat-increase-effect.hp { color: #44ff44; }
+.stat-increase-effect.luck { color: #ffff44; }
+
+.stat-increase {
+    font-size: 36px;
+    font-weight: bold;
+    animation: bounce 0.5s infinite;
+}
+
+/* 스탯 증가 애니메이션 */
+@keyframes statIncrease {
+    0% { 
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    20% { 
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    80% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% { 
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* 레벨업 파티클 */
+.level-up-particle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #ffd700;
+    border-radius: 50%;
+    animation: particle 1s ease-out forwards;
+}
+
+@keyframes particle {
+    0% {
+        transform: translate(0, 0);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(
+            calc(random(100) * 1px - 50px),
+            calc(random(100) * 1px - 50px)
+        );
+        opacity: 0;
+    }
+}
+
+/* 새 메시지 애니메이션 */
+@keyframes newMessage {
+    0% {
+        transform: translateX(-10px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* 스크롤바 스타일링 */
+.log-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.log-scroll::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+.log-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+.log-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.boss-encounter-effect {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 48px;
+    color: #ff0000;
+    text-shadow: 0 0 10px #ff0000;
+    animation: bossEncounter 2s ease-out;
+    z-index: 1000;
+}
+
+.boss-encounter {
+    animation: bossBackground 2s ease-out;
+}
+
+@keyframes bossEncounter {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(2);
+    }
+    50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+}
+
+@keyframes bossBackground {
+    0%, 100% { background: #1a1a1a; }
+    50% { background: #330000; }
+}
+
+.log-button-container {
+    text-align: center;
+    margin: 10px 0;
+    width: 100%;
+}
+
+.log-button {
+    display: block;
+    margin: 10px auto;
+    padding: 10px 25px;
+    background: linear-gradient(to bottom, #3498db, #2980b9);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    width: fit-content;
+    min-width: 180px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.log-button:hover {
+    background: linear-gradient(to bottom, #2980b9, #2472a4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.log-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* 보물상자 열기 버튼은 특별한 스타일 적용 */
+.log-button[data-action="open-reward"] {
+    background: linear-gradient(to bottom, #f1c40f, #f39c12);
+}
+
+.log-button[data-action="open-reward"]:hover {
+    background: linear-gradient(to bottom, #f39c12, #e67e22);
+}
+
+/* 전투 시작 버튼은 다른 색상 적용 */
+.log-button[data-action="start-battle"] {
+    background: linear-gradient(to bottom, #e74c3c, #c0392b);
+}
+
+.log-button[data-action="start-battle"]:hover {
+    background: linear-gradient(to bottom, #c0392b, #a93226);
+}
+
+.player-buffs {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.shield {
+    color: #3498db;
+}
+
+.defense-stack {
+    color: #2ecc71;
+}
+
+.stat-item.shield, .stat-item.defense-stack {
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.hp-text {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    font-size: 0.9em;
+}
+
+.action-probabilities {
+    font-size: 0.8em;
+    opacity: 0.9;
+    display: block;
+    margin-top: 4px;
+}
+
+.multi-hit-effect {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 48px;
+    color: #ffd700;
+    text-shadow: 0 0 10px #ffd700;
+    animation: multiHitEffect 0.5s ease-out;
+    z-index: 1000;
+}
+
+@keyframes multiHitEffect {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5) rotate(-45deg);
+    }
+    50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2) rotate(0deg);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8) rotate(45deg);
+    }
+}
+
+.warning {
+    color: #ff9800;
+    font-style: italic;
+    padding-left: 20px;
+}
+
+/* 액션 애니메이션 효과 스타일 */
+.action-effect {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.attack {
+    animation: attackEffect 0.5s ease-out;
+}
+
+.defend {
+    animation: defendEffect 0.5s ease-out;
+}
+
+.skill {
+    animation: skillEffect 0.5s ease-out;
+}
+
+.enemy-attack {
+    animation: enemyAttackEffect 0.5s ease-out;
+}
+
+@keyframes attackEffect {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* 다른 애니메이션들도 비슷하게 정의 */
+
+/* 1. 상태창 메시지 - 컴퓨터 스타일 (녹색) */
+.status {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+}
+
+.status-emphasis {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+/* 2. 플레이어 행동 - 파란 계열 */
+.player {
+    color: #4a9eff;
+}
+
+.player-emphasis {
+    color: #4a9eff;
+    font-weight: bold;
+    text-shadow: 0 0 5px #4a9eff;
+}
+
+/* 3. 적 행동 - 붉은 계열 */
+.enemy {
+    color: #ff4a4a;
+}
+
+.enemy-emphasis {
+    color: #ff4a4a;
+    font-weight: bold;
+    text-shadow: 0 0 5px #ff4a4a;
+}
+
+/* 4. 일반 이야기 메시지 - 흰색 */
+.narrative {
+    color: #ffffff;
+}
+
+.narrative-emphasis {
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 1.1em;
+    text-shadow: 0 0 5px #ffffff;
+}
+
+/* 5. 시스템 메시지 - 상태창과 동일한 스타일 */
+.system {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+}
+
+.system-emphasis {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+/* 6. 효과 메시지 - 노란/금색 계열 */
+.effect {
+    color: #ffd700;
+}
+
+.effect-emphasis {
+    color: #ffd700;
+    font-weight: bold;
+    text-shadow: 0 0 5px #ffd700;
+}
+
+/* 상태창 UI 스타일 */
+.character-stats {
+    /* 상태창 전용 스타일 */
+    width: 100%;
+    text-align: left;  /* 왼쪽 정렬 강제 */
+    margin: 0;
+    padding: 10px;
+}
+
+/* 로그 메시지의 status 클래스는 그대로 유지 */
+.status {
+    margin-right: auto;
+    margin-left: 0;
+    text-align: left;
+    background: none;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    max-width: 100%;
+    border: none;
+    border-left: none;
+}
+
+/* status와 status-emphasis를 동일하게 처리 */
+.status, .status-emphasis {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    margin-right: auto;
+    margin-left: 0;
+    text-align: left;
+    background: none;
+    max-width: 100%;
+}
+
+/* 다른 메시지 타입들도 border 제거 */
+.log-entry.attack,
+.log-entry.defend,
+.log-entry.system,
+.log-entry.enemy {
+    border-left: none;
+}
+
+/* 상태창 초기화 애니메이션 효과 */
+@keyframes terminalBlink {
+    0%, 100% { border-right-color: transparent; }
+    50% { border-right-color: #00ff00; }
+}
+
+.status.initializing {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    white-space: pre;
+    border-right: 2px solid #00ff00;
+    width: 0;
+    transition: width 2s steps(40, end);
+}
+
+/* 초기화 시 스캔라인 효과 */
+.character-stats.initializing::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: rgba(0, 255, 0, 0.5);
+    animation: scanline 2s linear infinite;
+    z-index: 1;
+}
+
+@keyframes scanline {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(100%); }
+}
+
+/* CRT 모니터 같은 노이즈 효과 */
+.character-stats.initializing {
+    position: relative;
+    background: rgba(0, 0, 0, 0.9);
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+    overflow: hidden;
+}
+
+.character-stats.initializing::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    pointer-events: none;
+}
+
+/* 상태창 터미널 스타일 */
+.character-stats.terminal {
+    background-color: #003300;
+    color: #33ff33;
+    font-family: 'Courier New', monospace;
+    padding: 10px;
+    border-radius: 5px;
+    height: 150px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    line-height: 1.4;
+    border: 1px solid #00ff00;
+    position: relative;
+}
+
+/* CRT 스캔라인 효과 */
+.character-stats.terminal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: rgba(0, 255, 0, 0.5);
+    animation: scanline 2s linear infinite;
+    z-index: 1;
+}
+
+/* 상태창 메시지 스타일 */
+.character-stats .status {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    margin: 4px 0;
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    white-space: pre;
+    border-right: 2px solid #00ff00;
+    width: 0;
+    transition: width 1s steps(40, end);
+}
+
+/* 깜빡이는 커서 효과 */
+.character-stats .status:last-child {
+    border-right: 2px solid #00ff00;
+    animation: terminalBlink 0.75s step-end infinite;
+}
+
+.hp-container {
+    position: relative;
+    width: 100%;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.hp-text {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    color: #fff;
+    font-size: 0.9em;
+    line-height: 20px;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.8);
+}
+
+/* 타이핑 효과용 커서 애니메이션 */
+@keyframes blink-cursor {
+    0%, 100% { border-right-color: rgba(51, 255, 51, 0.7); }
+    50% { border-right-color: transparent; }
+}
+
+/* 터미널 스타일 강화 */
+.character-stats.terminal {
+    background-color: #003300;
+    color: #33ff33;
+    font-family: 'Courier New', monospace;
+    padding: 10px;
+    border-radius: 5px;
+    height: 150px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    line-height: 1.4;
+    border: 1px solid #00ff00;
+    position: relative;
+}
+
+/* 타이핑 효과에 사용할 커서 스타일 */
+.typing-effect {
+    border-right: 2px solid rgba(51, 255, 51, 0.7);
+    animation: blink-cursor 0.7s infinite;
+    display: inline-block;
+} /* React �����丵 ���� �߰� ��Ÿ�� */
+#root {
+    min-height: 100vh;
+}
+
+.info-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.stage-info-container .progress-text {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95em;
+}
+
+.stage-info-container .progress-text span {
+    margin-left: 8px;
+    color: #ecf0f1;
+}
+
+.log-entry.error {
+    color: #ff6b6b !important;
+}
+
+.log-entry.system.error {
+    color: #ff6b6b;
+}
+
+.reward-placeholder {
+    padding: 12px;
+    text-align: center;
+    color: #bdc3c7;
+}
+
+.reward-button {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.reward-button .reward-title {
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.reward-button .reward-description {
+    line-height: 1.4;
+}
+/* Enemy attack highlight animation */
+@keyframes enemyAttackFlash {
+    0% { transform: translateX(0); box-shadow: 0 0 0 rgba(255, 60, 60, 0); }
+    20% { transform: translateX(-4px); box-shadow: 0 0 12px rgba(255, 60, 60, 0.5); }
+    40% { transform: translateX(4px); box-shadow: 0 0 16px rgba(255, 60, 60, 0.6); }
+    60% { transform: translateX(-2px); box-shadow: 0 0 10px rgba(255, 60, 60, 0.4); }
+    80% { transform: translateX(2px); box-shadow: 0 0 6px rgba(255, 60, 60, 0.2); }
+    100% { transform: translateX(0); box-shadow: 0 0 0 rgba(255, 60, 60, 0); }
+}
+
+.log-entry.enemy {
+    position: relative;
+    background: rgba(255, 68, 68, 0.08);
+    border-left: 3px solid rgba(255, 82, 82, 0.5);
+}
+
+.log-entry.enemy.attack-highlight {
+    animation: enemyAttackFlash 300ms ease-out;
+    font-weight: 600;
+    color: #ff7777;
+}
+
+.log-entry.enemy.attack-highlight strong {
+    color: #ff4545;
+}
+@keyframes playerHurtShake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-4px); }
+    40% { transform: translateX(4px); }
+    60% { transform: translateX(-2px); }
+    80% { transform: translateX(2px); }
+    100% { transform: translateX(0); }
+}
+
+@keyframes playerHurtGlow {
+    0% { box-shadow: 0 0 0 rgba(255, 90, 90, 0); }
+    50% { box-shadow: 0 0 18px rgba(255, 70, 70, 0.65); }
+    100% { box-shadow: 0 0 0 rgba(255, 90, 90, 0); }
+}
+
+.character.player.hurt {
+    animation: playerHurtShake 320ms ease-out;
+}
+
+.character.player.hurt .hp-bar {
+    animation: playerHurtGlow 320ms ease-out;
+}
+
+.character.player.hurt .hp-fill.player {
+    transition: width 0.3s ease-out, background-color 0.3s ease-out;
+    background: linear-gradient(to right, #ff4e4e, #ff1f1f);
+}
