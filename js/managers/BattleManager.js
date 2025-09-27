@@ -116,6 +116,7 @@ export class BattleManager {
         const strikeCount = options.strikesOverride ?? this.calculatePlayerStrikes(player, action);
         const strikeResults = [];
         const narrativeContext = options.context ?? 'battle-player-attack';
+        let plannedStrikes = strikeCount;
 
         for (let i = 0; i < plannedStrikes; i += 1) {
             if (enemy.isDead()) {
@@ -489,12 +490,4 @@ export class BattleManager {
         }
     }
 }
-
-
-
-
-
-
-
-
 

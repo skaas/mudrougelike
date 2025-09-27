@@ -1,11 +1,12 @@
 ﻿// RewardSystem.js
 import { getRandomFromArray } from './utils.js';
-import { 
-    ENEMY_GROWTH, 
-    INITIAL_STATS, 
-    LUCK_FACTORS, 
+import {
+    ENEMY_GROWTH,
+    INITIAL_STATS,
+    LUCK_FACTORS,
     LUCK_MESSAGES,
-    GAME_SETTINGS 
+    GAME_SETTINGS,
+    GAME_PHASES
 } from './constants.js';
 import { MESSAGES } from './constants.js';
 import { PLAYER_STATS, PLAYER_STAT_LIMITS } from './constants.js';
@@ -13,6 +14,7 @@ import { PLAYER_STATS, PLAYER_STAT_LIMITS } from './constants.js';
 export class RewardSystem {
     #eventEmitter;
     #state;
+    #currentRewards = [];
 
     constructor(eventEmitter, state) {
         this.#eventEmitter = eventEmitter;
@@ -20,26 +22,65 @@ export class RewardSystem {
     }
 
     showRewards() {
-        const possibleRewards = this.#getAllPossibleRewards();
-        const selectedRewards = this.#selectRandomRewards(possibleRewards, 3);
-        
+        const selectedRewards = this.generateRewardOptions();
+
         this.#eventEmitter.emit('ui:show-rewards', selectedRewards);
     }
 
+    generateRewardOptions(options = {}) {
+        const count = typeof options.count === 'number' ? options.count : 3;
+        const possibleRewards = this.#getAllPossibleRewards();
+        const selectedRewards = this.#selectRandomRewards(possibleRewards, count);
+        this.#currentRewards = selectedRewards.map(reward => ({ ...reward }));
+        return this.#currentRewards.map(reward => ({ ...reward }));
+    }
+
+    applyReward(rewardKey, context = {}) {
+        if (!this.#currentRewards || !this.#currentRewards.length) {
+            this.generateRewardOptions();
+        }
+
+        const key = rewardKey ?? context?.rewardKey ?? null;
+        let reward = null;
+        if (key !== null) {
+            reward = this.#currentRewards.find(item => item.type === key || item.key === key);
+        }
+        if (!reward && this.#currentRewards.length) {
+            reward = this.#currentRewards[0];
+        }
+        if (!reward || typeof reward.effect !== 'function') {
+            return { message: '' };
+        }
+
+        const result = reward.effect({ target: context?.target });
+        const message = typeof result === 'string' ? result : (result && result.message ? result.message : '');
+        return { message, reward };
+    }
+
+    clearGeneratedRewards() {
+        this.#currentRewards = [];
+    }
+
+
     hideRewards() {
+        this.clearGeneratedRewards();
         this.#eventEmitter.emit('ui:hide-rewards');
     }
 
     startNextBattle() {
-        const { state } = this.#eventEmitter;
-        state.stage++;
-        state.level++;
-        
-        const statModifier = state.calculateRandomStatModifier(state.player.luck);
-        state.enemy = state.resetEnemyWithLevel(state.level, statModifier);
-        
-        this.#eventEmitter.emit('ui:update-all');
-        this.#eventEmitter.emit('game:start-exploration');
+        if (!this.#state) {
+            console.error('[RewardSystem] Cannot start next battle without game state.');
+            return;
+        }
+
+        try {
+            this.#state.setGamePhase?.(GAME_PHASES.EXPLORE);
+            this.#eventEmitter.emit('game:prepare-next-battle');
+            this.#eventEmitter.emit('ui:update-all');
+            this.#eventEmitter.emit('game:start-exploration');
+        } catch (error) {
+            console.error('[RewardSystem] Failed to start next battle flow:', error);
+        }
     }
 
     #getAllPossibleRewards() {
@@ -660,3 +701,4 @@ export class RewardSystem {
         return result;
     }
 }
+

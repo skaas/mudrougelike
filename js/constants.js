@@ -1,4 +1,4 @@
-﻿export const GAME_SETTINGS = {
+export const GAME_SETTINGS = {
     ANIMATION_DELAY: 800,
     MIN_MISTAKE_CHANCE: 0.03,
     CRITICAL_HIT_CHANCE: 0.1,
@@ -247,7 +247,8 @@ export const STAGE_SETTINGS = {
 export const GAME_PHASES = {
     EXPLORE: 'explore',
     BATTLE: 'battle',
-    REWARD: 'reward'
+    REWARD: 'reward',
+    GAME_OVER: 'game_over'
 };
 
 export const MESSAGES = {
@@ -291,6 +292,8 @@ export const FREEZE_SETTINGS = {
     DEFAULT_RESIST: 0,
     BOSS_RESIST: 0.5
 };
+
+
 
 
 
