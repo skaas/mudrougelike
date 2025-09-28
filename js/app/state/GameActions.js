@@ -317,7 +317,11 @@ export function createGameActions(getState, dispatch) {
                     return createPlayerDefeatStages({ context: defeatContext, enemyRoll });
                 }
 
-                const thornsDamage = Math.max(0, Math.floor(playerAfterDamage?.thornsCoeff ?? 0));
+                const thornsCoeff = Math.max(0, playerAfterDamage?.thornsCoeff ?? 0);
+                const incomingDamage = Math.max(1, Math.floor(enemyRoll?.damage ?? 0));
+                const thornsDamage = thornsCoeff > 0
+                    ? Math.max(1, Math.floor(incomingDamage * thornsCoeff))
+                    : 0;
                 if (thornsDamage > 0) {
                     const thornsStages = createThornsCounterStages({
                         context: createBattleContext(stateAfterDamage),

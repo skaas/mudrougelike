@@ -43,7 +43,7 @@ export function PlayerPanel({ player, hurtToken = 0 }) {
         { icon: '🎯', label: 'Crit Rate', id: 'playerCritRate', value: formatPercent(player.critRate) },
         { icon: '💥', label: 'Crit Damage', id: 'playerCritDamage', value: formatRatio(player.critDamage) },
         { icon: '💉', label: 'Life Steal', id: 'playerLifeSteal', value: formatPercent(player.lifeStealRate) },
-        { icon: '🗡️', label: 'Thorns', id: 'playerThorns', value: formatNumber(player.thornsCoeff) },
+        { icon: '🗡️', label: 'Thorns', id: 'playerThorns', value: formatPercent(player.thornsCoeff) },
         { icon: '❄️', label: 'Freeze', id: 'playerFreeze', value: formatPercent(player.freezeRate) },
         { icon: '🍀', label: 'Luck', id: 'playerLuck', value: formatPercent(player.luck) },
         { icon: '❤️', label: 'Heal Cap', id: 'playerHealCap', value: formatPercent(player.turnHealingCapRatio) }

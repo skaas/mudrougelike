@@ -155,18 +155,50 @@ export class RewardSystem {
             },
             {
                 type: 'life_steal_up',
-                name: '?≫삁 媛뺥솕',
-                description: '?≫삁 鍮꾩쑉??利앷??⑸땲?? (+2%p)',
+                name: 'Life Steal 강화',
+                description: '흡혈이 5%로 활성화되거나 2~5% 증가합니다.',
                 isAvailable: () => (player.lifeStealRate ?? 0) < PLAYER_STAT_LIMITS.LIFE_STEAL_RATE,
                 effect: () => {
                     const limit = PLAYER_STAT_LIMITS.LIFE_STEAL_RATE;
-                    const previous = player.lifeStealRate ?? 0;
-                    if (previous >= limit) {
-                        return '?≫삁 鍮꾩쑉???대? 理쒕?移섏엯?덈떎.';
+                    const formatPercent = (value) => `${Math.round((value ?? 0) * 1000) / 10}%`;
+                    const canUpgrade = typeof player?.applyLifeStealUpgrade === 'function';
+
+                    if (!canUpgrade && (player.lifeStealRate ?? 0) >= limit) {
+                        return '흡혈 비율이 이미 최대치입니다.';
                     }
-                    const increase = 0.02;
-                    player.lifeStealRate = clampToLimit(previous + increase, limit);
-                    const message = `?≫삁 鍮꾩쑉??${formatPercent(previous)} ??${formatPercent(player.lifeStealRate)}`;
+
+                    let result;
+                    if (canUpgrade) {
+                        result = player.applyLifeStealUpgrade({
+                            minIncrease: 0.02,
+                            maxIncrease: 0.05,
+                            baseUnlock: 0.05
+                        });
+                    } else {
+                        const previous = player.lifeStealRate ?? 0;
+                        if (previous >= limit) {
+                            return '흡혈 비율이 이미 최대치입니다.';
+                        }
+                        const increment = previous <= 0
+                            ? 0.05
+                            : ((Math.floor(Math.random() * 4) + 2) / 100);
+                        const next = clampToLimit(previous + increment, limit);
+                        player.lifeStealRate = next;
+                        result = {
+                            previous,
+                            next,
+                            increase: next - previous,
+                            capped: next >= limit
+                        };
+                    }
+
+                    if (!result || result.increase <= 0) {
+                        return '흡혈 비율이 이미 최대치입니다.';
+                    }
+
+                    const message = result.previous <= 0
+                        ? `흡혈이 활성화되었습니다! 현재: ${formatPercent(result.next)}`
+                        : `흡혈 비율이 ${formatPercent(result.increase)}만큼 증가했습니다. (현재: ${formatPercent(result.next)})`;
 
                     this.#eventEmitter.emit('status:update', {
                         messages: [message],
@@ -201,18 +233,50 @@ export class RewardSystem {
             },
             {
                 type: 'thorns_up',
-                name: 'Thorns 媛뺥솕',
-                description: '諛섍꺽 怨꾩닔媛 利앷??⑸땲?? (+0.05)',
+                name: 'Thorns 강화',
+                description: '반격이 5%로 활성화되거나 2~5% 증가합니다.',
                 isAvailable: () => (player.thornsCoeff ?? 0) < PLAYER_STAT_LIMITS.THORNS_COEFF,
                 effect: () => {
                     const limit = PLAYER_STAT_LIMITS.THORNS_COEFF;
-                    const previous = player.thornsCoeff ?? 0;
-                    if (previous >= limit) {
-                        return '諛섍꺽 怨꾩닔媛 ?대? 理쒕?移섏엯?덈떎.';
+                    const formatPercent = (value) => `${Math.round((value ?? 0) * 1000) / 10}%`;
+                    const canUpgrade = typeof player?.applyThornsUpgrade === 'function';
+
+                    if (!canUpgrade && (player.thornsCoeff ?? 0) >= limit) {
+                        return '반격 계수가 이미 최대치입니다.';
                     }
-                    const increase = 0.05;
-                    player.thornsCoeff = clampToLimit(previous + increase, limit);
-                    const message = `諛섍꺽 怨꾩닔媛 ${(previous).toFixed(2)} ??${player.thornsCoeff.toFixed(2)}`;
+
+                    let result;
+                    if (canUpgrade) {
+                        result = player.applyThornsUpgrade({
+                            minIncrease: 0.02,
+                            maxIncrease: 0.05,
+                            baseUnlock: 0.05
+                        });
+                    } else {
+                        const previous = player.thornsCoeff ?? 0;
+                        if (previous >= limit) {
+                            return '반격 계수가 이미 최대치입니다.';
+                        }
+                        const increment = previous <= 0
+                            ? 0.05
+                            : ((Math.floor(Math.random() * 4) + 2) / 100);
+                        const next = clampToLimit(previous + increment, limit);
+                        player.thornsCoeff = next;
+                        result = {
+                            previous,
+                            next,
+                            increase: next - previous,
+                            capped: next >= limit
+                        };
+                    }
+
+                    if (!result || result.increase <= 0) {
+                        return '반격 계수가 이미 최대치입니다.';
+                    }
+
+                    const message = result.previous <= 0
+                        ? `반격이 활성화되었습니다! 현재: ${formatPercent(result.next)}`
+                        : `반격 계수가 ${formatPercent(result.increase)}만큼 증가했습니다. (현재: ${formatPercent(result.next)})`;
 
                     this.#eventEmitter.emit('status:update', {
                         messages: [message],

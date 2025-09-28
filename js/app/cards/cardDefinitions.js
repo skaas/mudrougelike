@@ -45,11 +45,23 @@ export const COMMON_CARDS = [
     },
     {
         key: 'card.thorns.plus005',
-        name: '가시 계수 +0.05',
+        name: 'Thorns 강화',
         rarity: CARD_RARITIES.COMMON,
-        description: '반격 계수를 0.05 증가시킵니다.',
+        description: '반격이 5%로 활성화되거나 2~5% 증가합니다.',
         apply: ({ player }) => {
-            CardEffects.increaseFlat(player, 'thornsCoeff', 0.05);
+            if (player?.applyThornsUpgrade) {
+                player.applyThornsUpgrade({
+                    minIncrease: 0.02,
+                    maxIncrease: 0.05,
+                    baseUnlock: 0.05
+                });
+            } else if (player) {
+                const previous = player.thornsCoeff ?? 0;
+                const increment = previous <= 0
+                    ? 0.05
+                    : ((Math.floor(Math.random() * 4) + 2) / 100);
+                CardEffects.increaseFlat(player, 'thornsCoeff', increment);
+            }
         }
     },
     {

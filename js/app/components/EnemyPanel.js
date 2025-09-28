@@ -26,7 +26,7 @@ export function EnemyPanel({ enemy, isBattle }) {
         { icon: '🎯', label: 'Crit Rate', id: 'enemyCritRate', value: enemy ? formatPercent(enemy.critRate) : '-' },
         { icon: '💥', label: 'Crit Damage', id: 'enemyCritDamage', value: enemy ? formatRatio(enemy.critDamage) : '-' },
         { icon: '💉', label: 'Life Steal', id: 'enemyLifeSteal', value: enemy ? formatPercent(enemy.lifeStealRate) : '-' },
-        { icon: '🗡️', label: 'Thorns', id: 'enemyThorns', value: enemy ? formatNumber(enemy.thornsCoeff) : '-' },
+        { icon: '🗡️', label: 'Thorns', id: 'enemyThorns', value: enemy ? formatPercent(enemy.thornsCoeff) : '-' },
         { icon: '❄️', label: 'Freeze', id: 'enemyFreeze', value: enemy ? formatPercent(enemy.freezeRate) : '-' },
         { icon: '🍀', label: 'Luck', id: 'enemyLuck', value: enemy ? formatPercent(enemy.luck) : '-' }
     ];

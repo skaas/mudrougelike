@@ -216,7 +216,7 @@ export class BattleManager {
         if (rawDamage > 0) {
             damageResult = target.damage(rawDamage, { ignoreArmor: Boolean(action.ignoreArmor) });
             lifeSteal = this.applyLifeSteal(actor, damageResult.applied);
-            thorns = this.applyThorns(target, actor);
+            thorns = this.applyThorns(target, actor, damageResult.applied);
             if (shouldAttemptFreeze) {
                 freezeApplied = this.tryApplyFreeze(actor, target);
             }
@@ -293,29 +293,38 @@ export class BattleManager {
     }
 
     applyLifeSteal(actor, damageApplied) {
-        if (!actor || damageApplied <= 0 || !actor.lifeStealRate) {
+        if (!actor || damageApplied <= 0) {
             return { attempted: 0, applied: 0 };
         }
 
-        const attempted = Math.floor(damageApplied * actor.lifeStealRate);
-        if (attempted <= 0) {
+        const rate = Math.max(0, actor.lifeStealRate ?? 0);
+        if (rate <= 0) {
             return { attempted: 0, applied: 0 };
         }
+
+        const attempted = actor.getEffectiveLifeStealHeal
+            ? actor.getEffectiveLifeStealHeal(damageApplied)
+            : Math.max(1, Math.floor(Math.max(1, Math.floor(Math.max(0, damageApplied))) * rate));
 
         const result = actor.heal(attempted, { enforceCap: true });
         return { attempted, applied: result.applied };
     }
 
-    applyThorns(defender, attacker) {
+    applyThorns(defender, attacker, incomingDamage = 0) {
         if (!defender || !attacker) {
             return { attempted: 0, applied: 0 };
         }
 
-        const baseDamage = defender.getEffectiveThornsDamage ? defender.getEffectiveThornsDamage() : Math.max(0, defender.thornsCoeff ?? 0);
-        const attempted = Math.max(0, Math.floor(baseDamage));
-        if (attempted <= 0) {
+        const coeff = defender.thornsCoeff ?? 0;
+        if (coeff <= 0) {
             return { attempted: 0, applied: 0 };
         }
+
+        const baseDamage = Math.max(1, Math.floor(Math.max(0, incomingDamage)));
+        const fallbackAttempt = Math.max(1, Math.floor(baseDamage * Math.max(0, coeff)));
+        const attempted = defender.getEffectiveThornsDamage
+            ? defender.getEffectiveThornsDamage(incomingDamage)
+            : fallbackAttempt;
 
         const beforeHp = attacker.hp ?? 0;
         const applied = Math.min(beforeHp, attempted);

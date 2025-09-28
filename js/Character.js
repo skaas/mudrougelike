@@ -262,7 +262,81 @@ export class Character {
         return this.combatState.thornsMultiplier;
     }
 
-    getEffectiveThornsDamage() {\r\n        const baseDamage = Math.max(0, this.thornsCoeff ?? 0);\r\n        const multiplier = this.combatState.thornsMultiplier ?? 1;\r\n        return Math.max(0, Math.floor(baseDamage * multiplier));\r\n    }
+    getEffectiveLifeStealHeal(incomingDamage = 0) {
+        const rate = Math.max(0, this.lifeStealRate ?? 0);
+        if (rate <= 0) {
+            return 0;
+        }
+
+        const baseDamage = Math.max(1, Math.floor(Math.max(0, incomingDamage)));
+        const attempted = Math.floor(baseDamage * rate);
+        return Math.max(1, attempted);
+    }
+
+    applyLifeStealUpgrade({ minIncrease = 0.02, maxIncrease = 0.05, baseUnlock = 0.05 } = {}) {
+        const limit = PLAYER_STAT_LIMITS?.LIFE_STEAL_RATE ?? Number.MAX_SAFE_INTEGER;
+        const previous = Math.max(0, this.lifeStealRate ?? 0);
+
+        if (previous >= limit) {
+            return { previous, next: previous, increase: 0, capped: true };
+        }
+
+        let increase;
+        if (previous <= 0) {
+            increase = Math.max(0, baseUnlock - previous);
+        } else {
+            const min = Math.min(minIncrease, maxIncrease);
+            const max = Math.max(minIncrease, maxIncrease);
+            const range = Math.max(0, max - min);
+            const randomStep = range === 0 ? min : (min + Math.random() * range);
+            increase = Math.max(0, Math.round(randomStep * 100) / 100);
+        }
+
+        let next = clamp(previous + increase, 0, limit);
+        increase = next - previous;
+        this.lifeStealRate = next;
+
+        return { previous, next, increase, capped: next >= limit };
+    }
+
+    getEffectiveThornsDamage(incomingDamage = 0) {
+        const coeff = Math.max(0, this.thornsCoeff ?? 0);
+        if (coeff <= 0) {
+            return 0;
+        }
+
+        const multiplier = Math.max(0, this.combatState.thornsMultiplier ?? 1);
+        const baseDamage = Math.max(1, Math.floor(Math.max(0, incomingDamage)));
+        const ratio = coeff * multiplier;
+        const attempted = Math.floor(baseDamage * ratio);
+        return Math.max(1, attempted);
+    }
+
+    applyThornsUpgrade({ minIncrease = 0.02, maxIncrease = 0.05, baseUnlock = 0.05 } = {}) {
+        const limit = PLAYER_STAT_LIMITS?.THORNS_COEFF ?? Number.MAX_SAFE_INTEGER;
+        const previous = Math.max(0, this.thornsCoeff ?? 0);
+
+        if (previous >= limit) {
+            return { previous, next: previous, increase: 0, capped: true };
+        }
+
+        let increase;
+        if (previous <= 0) {
+            increase = Math.max(0, baseUnlock - previous);
+        } else {
+            const min = Math.min(minIncrease, maxIncrease);
+            const max = Math.max(minIncrease, maxIncrease);
+            const range = Math.max(0, max - min);
+            const randomStep = range === 0 ? min : (min + Math.random() * range);
+            increase = Math.max(0, Math.round(randomStep * 100) / 100);
+        }
+
+        let next = clamp(previous + increase, 0, limit);
+        increase = next - previous;
+        this.thornsCoeff = next;
+
+        return { previous, next, increase, capped: next >= limit };
+    }
 
     getThornsTurnCap() {
         const multiplier = PLAYER_TURN_LIMITS?.THORNS_DAMAGE_MULTIPLIER ?? 0;
